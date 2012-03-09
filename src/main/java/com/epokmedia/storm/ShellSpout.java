@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
@@ -24,6 +25,8 @@ public class ShellSpout implements ISpout {
 
 	public static Logger LOG = Logger.getLogger(ShellSpout.class);
 	private static final long serialVersionUID = 1L;
+	
+	private JSONObject _next;
 	
 	Process _subprocess;
 	String subpid;
@@ -44,18 +47,21 @@ public class ShellSpout implements ISpout {
 
 		//can change this to launchSubprocess and have it return the pid (that the subprcess returns)
 		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(new File(context.getCodeDir()));
+		
+		//We are in local mode and we want to be able to execute script from outside the jar
+		//builder.directory(new File(context.getCodeDir()));
+		
 		try {
 			_subprocess = builder.start();
 			_processin = new DataOutputStream(_subprocess.getOutputStream());
 			_processout = new BufferedReader(new InputStreamReader(
-					_subprocess.getInputStream()));
-
+					_subprocess.getInputStream(), Charset.forName("UTF-8")));
+			
 			sendToSubprocess(context.getPIDDir());
 
 			//subprocesses must send their pid first thing
 			subpid = _processout.readLine();
-
+			
 			LOG.info("Launched subprocess with pid " + subpid);
 
 			return subpid;
@@ -76,7 +82,12 @@ public class ShellSpout implements ISpout {
 
 	@Override
 	public void nextTuple() {
-		this.sendToSubprocess("next");
+		if (_next == null) {
+			_next = new JSONObject();
+			_next.put("command", "next");
+		}
+		
+		this.sendToSubprocess(JSONValue.toJSONString(_next));
 
 		try {
 

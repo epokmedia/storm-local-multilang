@@ -3,7 +3,6 @@ package com.epokmedia.storm;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.task.ShellBolt;
 import backtype.storm.topology.BoltDeclarer;
 import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.IRichSpout;
@@ -55,7 +54,7 @@ public class StormLocalMultilang {
 			String command = (String) componentDefinition.get("command");
 			String scriptPath = formatScriptPath((String) componentDefinition.get("path"), topologyFilePath);
 			List<String> fields = (List<String>) componentDefinition.get("fields");
-			topologyBuilder.setSpout(componentId, new NodeJsSpout(command, scriptPath, fields));
+			topologyBuilder.setSpout(componentId, new ScriptSpout(command, scriptPath, fields));
 		}
 		
 		for(Entry<String, Object> bolt : (Set<Entry<String, Object>>)bolts.entrySet()) {
@@ -66,7 +65,7 @@ public class StormLocalMultilang {
 			String scriptPath = formatScriptPath((String) componentDefinition.get("path"), topologyFilePath);
 			List<String> fields = (List<String>) componentDefinition.get("fields");
 			
-			BoltDeclarer boltDeclarer = topologyBuilder.setBolt(componentId, new NodeJsBolt(command, scriptPath, fields));
+			BoltDeclarer boltDeclarer = topologyBuilder.setBolt(componentId, new ScriptBolt(command, scriptPath, fields));
 			
 			JSONArray groupings = (JSONArray) componentDefinition.get("grouping");
 			for (Object grouping : groupings) {
@@ -111,12 +110,12 @@ public class StormLocalMultilang {
 	}
 
 	
-	private static class NodeJsBolt extends ShellBolt implements IRichBolt {
+	private static class ScriptBolt extends ShellBolt implements IRichBolt {
 		private static final long serialVersionUID = 1L;
 
 		protected List<String> fields;
 		
-		public NodeJsBolt(String command, String codeResource, List<String> fields) {
+		public ScriptBolt(String command, String codeResource, List<String> fields) {
 			super(command, codeResource);
 			
 			this.fields = fields;
@@ -134,12 +133,12 @@ public class StormLocalMultilang {
 		 
     }
 	
-	private static class NodeJsSpout extends ShellSpout implements IRichSpout {
+	private static class ScriptSpout extends ShellSpout implements IRichSpout {
 		private static final long serialVersionUID = 1L;
 
 		protected List<String> fields;
 		
-		public NodeJsSpout(String command, String codeResource, List<String> fields) {
+		public ScriptSpout(String command, String codeResource, List<String> fields) {
 			super(command, codeResource);
 			
 			this.fields = fields;
