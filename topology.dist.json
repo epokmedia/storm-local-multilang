@@ -1,0 +1,33 @@
+{
+	"name":"testTopology",
+	"configuration":{
+		"debug":true
+	},
+	"components":{
+		"spouts":{
+			"spoutName":{
+				"command":"node",
+				"path":"spoutScriptPath",
+				"fields":["test","test2"]
+			}
+		},
+		"bolts":{
+			"boltName":{
+				"command":"node",
+				"path":"boltScriptPath",
+				"fields":["test","test2"],
+				"grouping":[
+					{
+						"type":"shuffle",
+						"componentId":"spoutName"
+					},
+					{
+						"type":"fields",
+						"componentId":"spoutName",
+						"fields":["test", "test2"]
+					}
+				]
+			}
+		}
+	}
+}
