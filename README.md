@@ -69,7 +69,7 @@ Here is an sample topology description file :
 
 Simply execute the following command :  
 
-	$ java -jar storm-local-multilang-standalone.jar path/to/your/topology/description/file
+	$ java -jar storm-local-multilang-standalone.jar path/to/your/topology/description/file.json
 
 This will launch a Storm `LocalCluster` instance and submit your topology.  
 
