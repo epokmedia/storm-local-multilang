@@ -90,9 +90,17 @@ public class StormLocalMultilang {
 		
 		StormTopology topology = topologyBuilder.createTopology();
 	
-		LocalCluster cluster = new LocalCluster();
+		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(topologyName, conf, topology);
 		
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				cluster.shutdown();
+			}
+			
+		}));
 	}
 
 	private static String formatScriptPath(String scriptPath, String topologyFilePath) {

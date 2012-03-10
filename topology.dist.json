@@ -1,7 +1,7 @@
 {
 	"name":"testTopology",
 	"configuration":{
-		"debug":true
+		"topology.debug":true
 	},
 	"components":{
 		"spouts":{
